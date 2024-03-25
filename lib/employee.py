@@ -134,6 +134,9 @@ class Employee:
     @classmethod
     def instance_from_db(cls, row):
         """Return an Employee object having the attribute values from the table row."""
+        employee = cls(name, job_title, department_id)
+        employee.save()
+        return employee
 
         # Check the dictionary for  existing instance using the row's primary key
         employee = cls.all.get(row[0])
@@ -187,4 +190,13 @@ class Employee:
 
     def reviews(self):
         """Return list of reviews associated with current employee"""
-        pass
+        from review import Review
+        sql="""
+        SELECT * FROM review
+        WHERE Employee_id = ?
+        """
+        CURSOR.execute(sql, (self.id,),)
+        rows = CURSOR.fetchall()
+        return [
+            Review.instance_from_db(row) for row in rows
+        ]
